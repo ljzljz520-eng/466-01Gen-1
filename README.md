@@ -1,57 +1,193 @@
-# React + TypeScript + Vite
+# 暖家家政阿姨接单站
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+连接雇主与家政服务人员的 O2O 平台。雇主可以发布保洁、做饭、陪护等服务需求，阿姨在接单大厅抢单，完成后上传服务照片和状态更新。取消订单时按原因（雇主改时间/阿姨爽约/天气原因）分别计算费用和评分。
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 快速开始
 
-## Expanding the ESLint configuration
+### 环境要求
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js >= 18
+- npm >= 9
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 安装依赖
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 一键启动开发环境
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm run dev
 ```
+
+启动后在浏览器打开：**http://localhost:5173**
+
+> 端口说明：前端 Vite 运行在 **5173**，后端 API 运行在 **3001**，`/api/*` 请求已通过 Vite 代理自动转发到后端。
+
+---
+
+## 功能清单
+
+### 雇主端
+
+| 功能 | 说明 |
+|------|------|
+| 发布需求 | 保洁 / 做饭 / 陪护三类服务，三步式向导表单 |
+| 填写地址 | 具体门牌号、楼层 |
+| 选择时间 | 预约日期和时间段 |
+| 宠物信息 | 是否有宠物、宠物种类 |
+| 特别要求 | 备注说明，如：清淡口味、擦窗户、不要让猫跑出去等 |
+| 订单跟踪 | 实时查看待接单 → 已接单 → 出发 → 到达 → 完成 全过程 |
+| 取消订单 | 可选择取消原因，按规则扣费/免责 |
+| 查看照片 | 阿姨完成后上传的服务照片 |
+| 评价系统 | 完成后给阿姨打分和留言 |
+
+### 阿姨端
+
+| 功能 | 说明 |
+|------|------|
+| 接单大厅 | 浏览当前所有可接单，支持按服务类型筛选和关键词搜索 |
+| 一键接单 | 立即抢单 |
+| 状态更新 | 点击按钮依次更新：出发 → 到达 → 完成 |
+| 上传照片 | 完成服务后上传现场照片（支持多张） |
+| 取消订单 | 阿姨也可发起取消，选择"阿姨爽约"将扣费用和评分 |
+| 个人中心 | 查看统计数据、累计收入、评价列表 |
+
+### 取消规则
+
+| 取消原因 | 发起方 | 费用处理 | 评分影响 |
+|---------|-------|---------|---------|
+| 雇主改时间 | 雇主 | 雇主承担 10% 手续费，其余退还 | 双方不扣分 |
+| 阿姨爽约 | 阿姨 | 全额退款给雇主 | 阿姨扣费用 + 评分 |
+| 天气原因 | 双方 | 双方免责，全额退款 | 双方不扣分 |
+
+---
+
+## 页面路由
+
+| 路径 | 页面 | 适用角色 |
+|------|------|---------|
+| `/` | 首页（进行中 + 历史订单 + 快速发布） | 雇主/阿姨 |
+| `/publish` | 发布需求（三步表单） | 雇主 |
+| `/order/:id` | 订单详情（状态时间轴 + 照片墙 + 操作按钮） | 雇主/阿姨 |
+| `/hall` | 接单大厅（可接单列表 + 筛选） | 阿姨 |
+| `/profile` | 个人中心（信息 + 统计 + 评价） | 雇主/阿姨 |
+
+点击顶部「切换到阿姨端 / 雇主端」可一键切换体验双视角。
+
+---
+
+## 技术栈
+
+### 前端
+
+- **框架**：React 18 + TypeScript
+- **构建**：Vite 6
+- **样式**：Tailwind CSS 3
+- **状态**：Zustand
+- **路由**：React Router v7
+- **图标**：Lucide React
+- **工具**：clsx、tailwind-merge
+
+### 后端
+
+- **框架**：Express 4 + TypeScript
+- **数据库**：SQLite（better-sqlite3，零配置，本地文件）
+- **工具**：cors、dotenv、nodemon、tsx
+
+### 共享层
+
+- `shared/types.ts` — 前后端共享的类型定义、常量、价格表、标签
+
+---
+
+## 目录结构
+
+```
+.
+├── api/                          # 后端
+│   ├── app.ts                    # Express 应用
+│   ├── server.ts                 # 服务器入口
+│   ├── controllers/              # API 控制器（订单、用户）
+│   ├── repositories/             # 数据访问层
+│   ├── services/                 # 业务逻辑层
+│   ├── routes/                   # 路由
+│   └── db/                       # 数据库初始化 + 种子数据
+│
+├── src/                          # 前端
+│   ├── App.tsx                   # 路由配置
+│   ├── main.tsx                  # 入口
+│   ├── index.css                 # 全局样式 + 自定义组件类
+│   ├── pages/                    # 页面：Home / Publish / OrderDetail / Hall / Profile
+│   ├── components/               # 组件：Header / OrderCard / StatusTimeline / CancelModal
+│   ├── store/                    # Zustand 状态
+│   └── lib/                      # API 封装
+│
+├── shared/                       # 共享
+│   └── types.ts                  # TS 类型 + 常量
+│
+├── nodemon.json                  # nodemon 配置（端口 3001）
+├── vite.config.ts                # Vite 配置（端口 5173，代理到 3001）
+├── tailwind.config.js            # 主题配色、字体、动画
+├── tsconfig.json                 # TS 配置（含 @shared 路径别名）
+└── package.json
+```
+
+---
+
+## 预置测试数据
+
+启动后自动载入种子数据，可直接用来体验：
+
+### 账号
+
+| 角色 | 姓名 | ID | 手机号 |
+|------|------|----|--------|
+| 雇主 | 李女士 | emp_001 | 13800000001 |
+| 雇主 | 张先生 | emp_002 | 13800000002 |
+| 阿姨 | 王阿姨 | worker_001 | 13900000001 |
+| 阿姨 | 刘阿姨 | worker_002 | 13900000002 |
+| 阿姨 | 张阿姨 | worker_003 | 13900000003 |
+
+### 订单
+
+- **ord_001** — 李女士的保洁订单（待接单）
+- **ord_002** — 李女士的做饭订单（王阿姨已接单，服务中）
+- **ord_003** — 张先生的保洁订单（待接单）
+- **ord_004** — 李女士的陪护订单（待接单）
+- **ord_005** — 张先生的保洁订单（已完成，含评价）
+
+### 服务价格表
+
+| 服务类型 | 单价 |
+|---------|------|
+| 保洁 | 80 元/小时 |
+| 做饭 | 60 元/小时 |
+| 陪护 | 50 元/小时 |
+
+---
+
+## 常用脚本
+
+| 命令 | 说明 |
+|------|------|
+| `npm run dev` | 同时启动前端 + 后端开发服务器（推荐） |
+| `npm run client:dev` | 只启动前端（5173） |
+| `npm run server:dev` | 只启动后端（3001） |
+| `npm run build` | 类型检查 + 生产构建 |
+| `npm run preview` | 预览构建产物 |
+| `npm run check` | 仅类型检查 |
+| `npm run lint` | ESLint 代码检查 |
+
+---
+
+## 设计规范
+
+- **主色调**：暖橙 `#F97316`
+- **辅助色**：橄榄绿 `#65A30D`
+- **背景**：米色纸质质感 `#FFFBF5`
+- **字体**：思源宋体（标题） + 思源黑体（正文）
+- **风格**：卡片式布局，圆角胶囊按钮，温暖亲切
